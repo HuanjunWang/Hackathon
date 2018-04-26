@@ -1,10 +1,10 @@
 import pickle
-import pprint
+#import pprint
 
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import numpy as np
-import time
+#import time
 
 
 class ENV(object):

@@ -26,7 +26,7 @@ class PgslParser(object):
             self.parse_xml(output_file)
 
     def parse_xml(self, output_file):
-        tei_flag = False
+#        tei_flag = False
         rec_time = None
         ip_dec = None
         ip_src = None
