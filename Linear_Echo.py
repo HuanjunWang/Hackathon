@@ -2,11 +2,11 @@ import tensorflow as tf
 from ENV import ENV
 
 
-def run_with_linear(env, number=100000, lr=0.01):
-    training_epochs = 2000
+def run_with_linear(env, number=100000, lr=0.004):
+    training_epochs = 200000
     training_step = 1000
     display_step = 100
-    verify_step = 1000
+    verify_step = 500
 
 
     state_h = tf.placeholder(tf.float32, shape=[None, ENV.STATE_LEN], name="States")
@@ -40,18 +40,8 @@ def run_with_linear(env, number=100000, lr=0.01):
                 state = env.reset()
                 total_reward = 0
                 for i in range(number):
-                    adv = sess.run(pred_delay, feed_dict={state_h: [state]}) + 2
-                    state, reward, end = env.step(adv=adv)
-                    total_reward += reward
-                    if end:
-                        break
-                print("[SL:Linear] Messages:%d number:%d Total Reward:%d" % (number, env.STATE_LEN, total_reward))
-            if (epoch + 1) % verify_step == 0:
-                state = env.reset()
-                total_reward = 0
-                for i in range(number):
-                    adv = sess.run(pred_delay, feed_dict={state_h: [state]}) + 3
-                    state, reward, end = env.step(adv=adv)
+                    adv = sess.run(pred_delay, feed_dict={state_h: [state]})
+                    state, reward, end = env.step(advance=adv)
                     total_reward += reward
                     if end:
                         break
