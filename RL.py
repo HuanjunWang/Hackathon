@@ -1,54 +1,12 @@
+<<<<<<< HEAD:Solution2.py
 import pickle
 #import pprint
-
-import tensorflow as tf
-import tensorflow.contrib.slim as slim
-import numpy as np
+=======
+>>>>>>> 5a4cb4d703e837216aa0f931946d6ed07708c870:RL.py
 
 
-class ENV(object):
-    DELAY_FILE = 'delay.txt'
-    STATE_LEN = 10
-    MAX_ADV = 4
-    MIN_ADV = 1
 
-    def __init__(self):
-        self.load_data()
-        self.reset()
-
-    def load_data(self):
-        with open(self.DELAY_FILE, "rb") as f:
-            self.data = pickle.load(f)
-            print("Total PGSL messages:", len(self.data))
-
-    def reset(self, index = None):
-        self.advance = 5
-        if index is None:
-            self.index = np.random.randint(0, len(self.data)-1000)
-        else:
-            self.index = index
-        self.state = [3 for i in range(self.STATE_LEN)]
-        return self.state[:]
-
-    def step(self, action):
-        self.advance += action
-        ad = self.advance - self.data[self.index]
-
-        self.state.append(ad)
-        if ad >= self.MIN_ADV and ad <= self.MAX_ADV:
-            reward = 1
-        else:
-            reward = 0
-
-        self.index += 1
-        end = (self.index == len(self.data))
-        if self.advance < 0 or self.advance > 50:
-            end = True
-
-        return self.state[-self.STATE_LEN:], reward, end
-
-
-class Agent(object):
+class RLAgent(object):
     def __init__(self, lr, state_len):
         self.state_h = tf.placeholder(tf.float32, shape=[None, state_len], name="States")
         self.action_h = tf.placeholder(tf.int32, shape=[None], name="Actions")
@@ -72,24 +30,13 @@ class Agent(object):
         self.update = optimizer.minimize(loss)
 
 
-def run_with_fix_advance(env):
-    env.reset()
-    end = False
-    total_reward = 0
-    # while not end:
-    for i in range(20000):
-        state, reward, end = env.step(0)
-        total_reward += reward
-    print("Total Reward:", total_reward)
-
-
 def run_with_rl(env):
     max_loop = 300000
     epsilon = 0.45
     epsilon_delta = 0.00002
     learning_rate = 0.01
     gamma = 0.99
-    agent = Agent(lr=learning_rate, state_len=ENV.STATE_LEN)
+    agent = RLAgent(lr=learning_rate, state_len=ENV.STATE_LEN)
 
     with tf.Session() as sess:
         tf.summary.FileWriter("./log", sess.graph)
@@ -134,9 +81,3 @@ def run_with_rl(env):
                     state, reward, game_over = env.step(action)
                     total_reward += reward
                 print("Test Round:", i, "  Total Reward:", total_reward)
-
-
-if __name__ == "__main__":
-    env = ENV()
-    run_with_fix_advance(env)
-    run_with_rl(env)
