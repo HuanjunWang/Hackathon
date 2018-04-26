@@ -2,8 +2,8 @@ import tensorflow as tf
 from ENV import ENV
 
 
-def run_with_linear(env, number=100000, lr=0.01):
-    training_epochs = 2000
+def run_with_linear(env, number=100000, lr=0.004):
+    training_epochs = 200000
     training_step = 1000
     display_step = 100
     verify_step = 500
