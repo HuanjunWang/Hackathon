@@ -1,8 +1,7 @@
-<<<<<<< HEAD:Solution2.py
+
 import pickle
 #import pprint
-=======
->>>>>>> 5a4cb4d703e837216aa0f931946d6ed07708c870:RL.py
+
 
 
 
