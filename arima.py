@@ -27,7 +27,6 @@ import matplotlib.pyplot as plt
 
 dta2=pd.read_csv('delay_data_test.csv',header=None)
 #dta2.index = pd.Index(sm.tsa.datetools.dates_from_range('1000m1',length=len(dta2)))
-pd.to_datetime(dta2.index, unit='ms')
 dta2.index = pd.to_datetime(dta2.index, unit='ms')
 #dta2.index = pd.Index(range(0, len(dta2)))
 dta2.plot(figsize=(12,8))
@@ -107,7 +106,7 @@ fig = qqplot(resid, line='q', ax=ax, fit=True)
 
 #predict
 
-predict_dta = arma_mod21.predict(58, 208, dynamic=True)
+predict_dta = arma_mod21.predict(108, 215, dynamic=True)
 #print(predict_dta)
 #print(dta2)
 
@@ -122,17 +121,24 @@ ax3 = fig.add_subplot(313)
 
 
 diff_shift_ts = diff1.shift(1)
+diff_shift_ts.index = pd.to_datetime(predict_dta.index, unit='ms')
 diff_recover = predict_dta.add(diff_shift_ts[0])
-diff_recover.dropna(inplace=True)
+diff_recover.dropna(inplace=False)
 print(diff_recover)
 diff_recover.plot(ax=ax3)
 
 
 fig, ax = plt.subplots(figsize=(12, 8))
 ax = dta2.loc[dta2.index[0:]].plot(ax=ax)
-fig = arma_mod21.plot_predict(108, 208, dynamic=True, ax=ax, plot_insample=False)
+fig = arma_mod21.plot_predict(108, 215, dynamic=True, ax=ax, plot_insample=False)
 plt.show()
 
+dta3=pd.read_csv('delay_data.csv',header=None)
+#dta2.index = pd.Index(sm.tsa.datetools.dates_from_range('1000m1',length=len(dta2)))
+pd.to_datetime(dta3.index, unit='ms')
+dta3.index = pd.to_datetime(dta3.index, unit='ms')
+#dta2.index = pd.Index(range(0, len(dta2)))
+dta3.plot(figsize=(12,8))
 
 def getReward(actual,prediction,s):
     if(np.abs(actual - prediction) <=s):
@@ -141,13 +147,13 @@ def getReward(actual,prediction,s):
         return 0
 
 sum=0
-for i in range(58,107):
-    sum=sum+getReward(dta2[0][i],diff_recover[i-58],2)
+for i in range(108,215):
+    sum=sum+getReward(dta3[0][i],diff_recover[i-108],2)
 print("Limition=2,The rewards is:%d"%sum)
-print("The result is:%f"%(sum/(107-58)))
+print("The result is:%f"%(sum/(215-108)))
 
 sum=0
-for i in range(58,107):
-    sum=sum+getReward(dta2[0][i],diff_recover[i-58],1)
+for i in range(108,215):
+    sum=sum+getReward(dta3[0][i],diff_recover[i-108],1)
 print("Limition=1,The rewards is:%d"%sum)
-print("The result is:%f"%(sum/(107-58)))
+print("The result is:%f"%(sum/(215-108)))
