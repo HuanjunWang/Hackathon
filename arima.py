@@ -32,6 +32,13 @@ dta2.index = pd.to_datetime(dta2.index, unit='ms')
 dta2.plot(figsize=(12,8))
 
 
+
+dta3=pd.read_csv('delay_data.csv',header=None)
+#dta2.index = pd.Index(sm.tsa.datetools.dates_from_range('1000m1',length=len(dta2)))
+pd.to_datetime(dta3.index, unit='ms')
+dta3.index = pd.to_datetime(dta3.index, unit='ms')
+#dta2.index = pd.Index(range(0, len(dta2)))
+
 #dta=pd.Series(dta)
 #dta.index = pd.Index(sm.tsa.datetools.dates_from_range('2001','2090'))
 #dta.plot(figsize=(12,8))
@@ -111,13 +118,14 @@ predict_dta = arma_mod21.predict(108, 215, dynamic=True)
 #print(dta2)
 
 fig = plt.figure(figsize=(12,8))
-ax1=fig.add_subplot(311)
-dta2.plot(ax=ax1)
-ax2 = fig.add_subplot(312)
-predict_dta.plot(ax=ax2)
+ax1=fig.add_subplot(211)
+dta4=dta3[108:216]
+dta4.plot(ax=ax1)
+#ax2 = fig.add_subplot(312)
+#predict_dta.plot(ax=ax2)
 
 
-ax3 = fig.add_subplot(313)
+ax3 = fig.add_subplot(212)
 
 
 diff_shift_ts = diff1.shift(1)
@@ -133,11 +141,6 @@ ax = dta2.loc[dta2.index[0:]].plot(ax=ax)
 fig = arma_mod21.plot_predict(108, 215, dynamic=True, ax=ax, plot_insample=False)
 plt.show()
 
-dta3=pd.read_csv('delay_data.csv',header=None)
-#dta2.index = pd.Index(sm.tsa.datetools.dates_from_range('1000m1',length=len(dta2)))
-pd.to_datetime(dta3.index, unit='ms')
-dta3.index = pd.to_datetime(dta3.index, unit='ms')
-#dta2.index = pd.Index(range(0, len(dta2)))
 dta3.plot(figsize=(12,8))
 
 def getReward(actual,prediction,s):
@@ -149,11 +152,11 @@ def getReward(actual,prediction,s):
 sum=0
 for i in range(108,215):
     sum=sum+getReward(dta3[0][i],diff_recover[i-108],2)
-print("Limition=2,The rewards is:%d"%sum)
+print("Limition range =2,The rewards is:%d"%sum)
 print("The result is:%f"%(sum/(215-108)))
 
 sum=0
 for i in range(108,215):
     sum=sum+getReward(dta3[0][i],diff_recover[i-108],1)
-print("Limition=1,The rewards is:%d"%sum)
+print("Limition range =1,The rewards is:%d"%sum)
 print("The result is:%f"%(sum/(215-108)))
