@@ -8,26 +8,42 @@ class ENV(object):
     MARGIN = 5
     WINDOW = 1
 
-    def __init__(self):
+    def __init__(self, step=40):
         self.data = None
         self.index = None
-        self.X = None
-        self.Y = None
+
+        self.X = []
+        self.Y = []
+        self.VX = []
+        self.VY = []
+        self.V_LEN = 100000
+        self.SAMPLE_STEP = step
         self.TSize = None
+        self.VSize = None
+
         self.load_data()
         self.reset()
 
     def load_data(self):
         with open(self.DELAY_FILE, "rb") as f:
             self.data = pickle.load(f)
-            self.X = []
-            self.Y = []
-            for i in range(ENV.STATE_LEN + 100000, len(self.data)):
-                self.X.append(self.data[i - ENV.STATE_LEN - ENV.MARGIN:i-ENV.MARGIN])
+
+            i = 0
+            while i < self.V_LEN:
+                self.VX.append(self.data[i:i + ENV.STATE_LEN])
+                self.VY.append(self.data[i + ENV.STATE_LEN + ENV.MARGIN])
+                i += self.SAMPLE_STEP
+
+            i = self.V_LEN
+            while i < len(self.data):
+                self.X.append(self.data[i - ENV.STATE_LEN - ENV.MARGIN:i - ENV.MARGIN])
                 self.Y.append(self.data[i])
+                i += self.SAMPLE_STEP
+            self.VSize = len(self.VX)
             self.TSize = len(self.X)
 
-            print("Total PGSL messages:", len(self.data), "Training Samples:", self.TSize)
+            print("Total PGSL messages:", len(self.data), "Training Samples:", self.TSize, "Verify Samples:",
+                  self.VSize)
 
     def reset(self, index=None):
         if index is None:

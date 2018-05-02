@@ -1,22 +1,34 @@
 import tensorflow as tf
 from ENV import ENV
+import tensorflow.contrib.slim as slim
 
 
-def run_with_linear(env, number=100000, lr=0.004):
+def run_with_linear(env, number=100000, lr=0.0001):
     training_epochs = 200000
-    training_step = 10000
+    training_step = 1000
     display_step = 50
-    verify_step = 500
+    verify_step = 1000
 
+    print("NN, lr = ",lr)
     state_h = tf.placeholder(tf.float32, shape=[None, ENV.STATE_LEN], name="States")
     delay = tf.placeholder(tf.float32, shape=[None], name="delay")
-    weight = tf.get_variable(name="weight", shape=[ENV.STATE_LEN], initializer=tf.constant_initializer(0.1))
-    bias = tf.get_variable(name="bias", shape=[1], initializer=tf.constant_initializer(0.1))
-    pred_delay = tf.reduce_sum(tf.multiply(state_h, weight), 1)
+
+    l1 = slim.fully_connected(inputs=state_h, num_outputs=400, biases_initializer=None,
+                              activation_fn=tf.nn.relu)
+    l2 = slim.fully_connected(inputs=l1, num_outputs=1000,biases_initializer=None,
+                              activation_fn=tf.nn.relu)
+    l3 = slim.fully_connected(inputs=l2, num_outputs=100,biases_initializer=None,
+                              activation_fn=tf.nn.relu)
+
+    l4 = slim.fully_connected(inputs=l3, num_outputs=1, biases_initializer=None,
+                              activation_fn=None)
+
+    pred_delay = tf.reshape(l4, [-1])
+
     pows = tf.pow(pred_delay - delay, 2)
     cost = tf.reduce_sum(pows) / (2 * number)
 
-    optimizer = tf.train.GradientDescentOptimizer(lr).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(lr).minimize(cost)
 
     init = tf.global_variables_initializer()
 
@@ -31,8 +43,7 @@ def run_with_linear(env, number=100000, lr=0.004):
 
             if (epoch + 1) % display_step == 0:
                 c = sess.run(cost, feed_dict={state_h: env.VX, delay: env.VY})
-                print("Epoch:", '%06d' % (epoch + 1), "cost=", "{:.9f}".format(c), \
-                      "W=", sess.run(weight), "b=", sess.run(bias))
+                print("Epoch:", '%06d' % (epoch + 1), "cost=", "{:.9f}".format(c))
 
             if (epoch + 1) % verify_step == 0:
                 state = env.reset()
@@ -43,7 +54,7 @@ def run_with_linear(env, number=100000, lr=0.004):
                     total_reward += reward
                     if end:
                         break
-                print("[SL:Linear] Messages:%d number:%d Total Reward:%d" % (number, env.STATE_LEN, total_reward))
+                print("[SL:NN] Messages:%d number:%d Total Reward:%d" % (number, env.STATE_LEN, total_reward))
 
 
 if __name__ == "__main__":

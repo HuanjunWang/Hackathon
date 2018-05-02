@@ -5,7 +5,7 @@ def run_with_average_value(env, number=100000, start=0):
     state = env.reset()
     total_reward = 0
     for i in range(number):
-        adv = int(np.around(np.mean(state)))
+        adv = int(np.around(np.mean(state[-1])))
         state, reward, end = env.step(advance=adv)
         total_reward += reward
         if end:
