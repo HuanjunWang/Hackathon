@@ -3,7 +3,7 @@ from ENV import ENV
 import tensorflow.contrib.slim as slim
 
 
-def run_with_linear(env, number=100000, lr=0.0001):
+def run_with_nn(env, number=100000, lr=0.0001):
     training_epochs = 200000
     training_step = 1000
     display_step = 50
@@ -13,13 +13,12 @@ def run_with_linear(env, number=100000, lr=0.0001):
     state_h = tf.placeholder(tf.float32, shape=[None, ENV.STATE_LEN], name="States")
     delay = tf.placeholder(tf.float32, shape=[None], name="delay")
 
-    l1 = slim.fully_connected(inputs=state_h, num_outputs=400, biases_initializer=None,
+    l1 = slim.fully_connected(inputs=state_h, num_outputs=40, biases_initializer=None,
                               activation_fn=tf.nn.relu)
-    l2 = slim.fully_connected(inputs=l1, num_outputs=1000,biases_initializer=None,
+    l2 = slim.fully_connected(inputs=l1, num_outputs=100,biases_initializer=None,
                               activation_fn=tf.nn.relu)
-    l3 = slim.fully_connected(inputs=l2, num_outputs=100,biases_initializer=None,
+    l3 = slim.fully_connected(inputs=l2, num_outputs=400,biases_initializer=None,
                               activation_fn=tf.nn.relu)
-
     l4 = slim.fully_connected(inputs=l3, num_outputs=1, biases_initializer=None,
                               activation_fn=None)
 
@@ -58,5 +57,5 @@ def run_with_linear(env, number=100000, lr=0.0001):
 
 
 if __name__ == "__main__":
-    env = ENV()
-    run_with_linear(env)
+    env = ENV(step=10)
+    run_with_nn(env)

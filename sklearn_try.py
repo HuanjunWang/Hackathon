@@ -10,7 +10,7 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 
 
-def test_ml_model(env, reg, number=10000):
+def test_ml_model(env, reg, number=100000):
     name = reg.__class__.__name__
     reg.fit(env.X, env.Y)
     state = env.reset()
@@ -31,19 +31,15 @@ if __name__ == "__main__":
              + WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e+1))
 
     models = [
-        linear_model.SGDRegressor(),
         TheilSenRegressor(),
         RANSACRegressor(),
         HuberRegressor(),
-        tree.DecisionTreeRegressor(),
-        linear_model.BayesianRidge(),
         linear_model.LinearRegression(),
-        linear_model.Ridge(alpha=.5),
+        tree.DecisionTreeRegressor(),
         GaussianNB(),
-        # GaussianProcessRegressor(kernel=kernel, alpha=0.0),
     ]
 
-    steps = [100, 30, 10, 5]
+    steps = [30, 10]
     for step in steps:
         env = ENV(step=step)
         for model in models:
