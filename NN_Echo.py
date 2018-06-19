@@ -66,18 +66,19 @@ class NN:
     lr = 0.001
     info_loop = 10
 
-    def __init__(self, samples, model=None):
+    def __init__(self, samples, model=None, node_num=300):
         self.samples = samples
         self.model = model
+        self.node_num = node_num
 
         self.state = tf.placeholder(tf.float32, (None, self.samples.FEATURE_LEN), name="State")
         self.y = tf.placeholder(tf.float32, (None, 1), name="y")
         with tf.name_scope("NN"):
-            self.l1 = slim.fully_connected(self.state, 300)  # , activation_fn=tf.sigmoid)
-            self.l2 = slim.fully_connected(self.l1, 1000)  # , activation_fn=tf.sigmoid)
-            self.l3 = slim.fully_connected(self.l2, 1000, activation_fn=tf.sigmoid)
-            self.l4 = slim.fully_connected(self.l3, 1000)  # , activation_fn=tf.sigmoid)
-            self.l5 = slim.fully_connected(self.l4, 300)  # , activation_fn=tf.sigmoid)
+            self.l1 = slim.fully_connected(self.state, self.node_num)  # , activation_fn=tf.sigmoid)
+            self.l2 = slim.fully_connected(self.l1, self.node_num)  # , activation_fn=tf.sigmoid)
+            self.l3 = slim.fully_connected(self.l2, self.node_num, activation_fn=tf.sigmoid)
+            self.l4 = slim.fully_connected(self.l3, self.node_num)  # , activation_fn=tf.sigmoid)
+            self.l5 = slim.fully_connected(self.l4, self.node_num)  # , activation_fn=tf.sigmoid)
             self.out_put = slim.fully_connected(self.l5, 1, activation_fn=None, biases_initializer=None)
 
         self.predict = tf.round(self.out_put)
@@ -110,8 +111,8 @@ class NN:
 
             print("lose:%f lose_val:%f, lose_test:%f" % (lose, lose_val, lose_test))
             # print("award:%f award_val:%f, award_test:%f" % (award, award_val, award_test))
-            print("%f :%f :%f" % (award/len(self.samples.X), award_val/len(self.samples.Xval), award_test/len(self.samples.Xtest)))
-
+            print("%f :%f :%f" % (
+                award / len(self.samples.X), award_val / len(self.samples.Xval), award_test / len(self.samples.Xtest)))
 
     def run_training(self, lr=None):
         if lr is not None:
@@ -125,7 +126,7 @@ class NN:
                 self.saver.restore(sess, self.model)
 
             try:
-                for i in range(400):
+                for i in range(1000):
                     [opt, lose] = sess.run([self.opt_op, self.lose],
                                            feed_dict={self.state: self.samples.Xtest, self.y: self.samples.ytest})
                     self.lose_his.append(lose)
@@ -147,16 +148,16 @@ if __name__ == "__main__":
     sample = Samples()
     sample.print()
 
-
     lose_history = []
-    for lr in [0.001, 0.0001]:
-        model_name = "./saver/l1_300_l2_300_l3_300_l4_l5_lr_%.6f_adam_model_2" % lr
-        nn = NN(sample, model=model_name)
+    for nodes in [100, 300, 1000, 3000, 10000]:
+        for lr in [0.01, 0.003, 0.001, 0.0001]:
+            model_name = "./saver/l5_%d_lr_%.6f_adam_model_2" % (nodes, lr)
+            nn = NN(sample, model=model_name, node_num=nodes)
 
-        lh = nn.run_training(lr=lr)
-        lose_history.append(lh)
-        plt.plot(range(len(lh) - 100), lh[100:], label="lr=%.4f"%lr)
-        nn.verify()
+            lh = nn.run_training(lr=lr)
+            lose_history.append(lh)
+            plt.plot(range(len(lh) - 100), lh[100:], label="lr=%.4f node = %d" % (lr, nodes))
+            nn.verify()
 
     leg = plt.legend(loc='best', ncol=2, mode="expand", shadow=True, fancybox=True)
     leg.get_frame().set_alpha(0.5)
