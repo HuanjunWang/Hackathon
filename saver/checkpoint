@@ -1,2 +1,0 @@
-model_checkpoint_path: "l1_300_l2_300_l3_300_l4_l5_lr_0.000100_adam_model_2"
-all_model_checkpoint_paths: "l1_300_l2_300_l3_300_l4_l5_lr_0.000100_adam_model_2"
