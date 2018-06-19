@@ -127,7 +127,7 @@ class NN:
             try:
                 for i in range(400):
                     [opt, lose] = sess.run([self.opt_op, self.lose],
-                                           feed_dict={self.state: self.samples.X, self.y: self.samples.y})
+                                           feed_dict={self.state: self.samples.Xtest, self.y: self.samples.ytest})
                     self.lose_his.append(lose)
 
                     if (i + 1) % self.info_loop == 0:
@@ -146,18 +146,18 @@ class NN:
 if __name__ == "__main__":
     sample = Samples()
     sample.print()
-    verify = True
+
 
     lose_history = []
     for lr in [0.001, 0.0001]:
         model_name = "./saver/l1_300_l2_300_l3_300_l4_l5_lr_%.6f_adam_model_2" % lr
         nn = NN(sample, model=model_name)
 
-        if not verify:
-            lh = nn.run_training(lr=lr)
-            lose_history.append(lh)
-            plt.plot(range(len(lh) - 100), lh[100:])
-        else:
-            nn.verify()
+        lh = nn.run_training(lr=lr)
+        lose_history.append(lh)
+        plt.plot(range(len(lh) - 100), lh[100:], label="lr=%.4f"%lr)
+        nn.verify()
 
+    leg = plt.legend(loc='best', ncol=2, mode="expand", shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
     plt.show()
