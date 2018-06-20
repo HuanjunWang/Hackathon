@@ -82,7 +82,7 @@ class NN:
             self.out_put = slim.fully_connected(self.l2, 1, activation_fn=None, biases_initializer=None)
 
         self.predict = tf.round(self.out_put)
-        self.award = tf.reduce_sum(tf.cast(tf.abs(self.predict - self.y) <= 1, tf.float32))
+        self.award = tf.reduce_sum(tf.cast(tf.abs(self.predict - self.y) <= 2, tf.float32))
 
         self.lose = tf.reduce_mean((self.out_put - self.y) ** 2)
 
@@ -92,7 +92,8 @@ class NN:
         self.opt_op = self.opt2.minimize(self.lose)
 
         self.init = tf.global_variables_initializer()
-        self.saver = tf.train.Saver()
+        if self.model is not None:
+            self.saver = tf.train.Saver(name=self.model)
         self.lose_his = []
 
     def verify(self):
@@ -149,8 +150,8 @@ if __name__ == "__main__":
     sample.print()
 
     lose_history = []
-    for nodes in [100]:
-        for lr in [0.003]:
+    for nodes in [100, 300]:
+        for lr in [0.001, 0.003]:
             model_name = "./saver/l5_%d_lr_%.6f_adam_model_2" % (nodes, lr)
             nn = NN(sample, model=model_name, node_num=nodes)
 
