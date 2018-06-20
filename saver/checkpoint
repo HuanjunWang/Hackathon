@@ -1,0 +1,2 @@
+model_checkpoint_path: "l5_100_lr_0.003000_adam_model_2"
+all_model_checkpoint_paths: "l5_100_lr_0.003000_adam_model_2"

@@ -12,9 +12,9 @@ from matplotlib import pyplot as plt
 class Samples:
     DELAY_FILE = 'delay.txt'
     SMALL_FILE = 'small.txt'
-    FEATURE_LEN = 10
+    FEATURE_LEN = 100
     FEATURE_GAP = 5
-    SMALL_NUM = 3000
+    SMALL_NUM = 300000
 
     def __init__(self):
         self.raw = None
@@ -79,7 +79,7 @@ class NN:
             self.l3 = slim.fully_connected(self.l2, self.node_num, activation_fn=tf.sigmoid)
             self.l4 = slim.fully_connected(self.l3, self.node_num)  # , activation_fn=tf.sigmoid)
             self.l5 = slim.fully_connected(self.l4, self.node_num)  # , activation_fn=tf.sigmoid)
-            self.out_put = slim.fully_connected(self.l5, 1, activation_fn=None, biases_initializer=None)
+            self.out_put = slim.fully_connected(self.l2, 1, activation_fn=None, biases_initializer=None)
 
         self.predict = tf.round(self.out_put)
         self.award = tf.reduce_sum(tf.cast(tf.abs(self.predict - self.y) <= 1, tf.float32))
@@ -126,9 +126,9 @@ class NN:
                 self.saver.restore(sess, self.model)
 
             try:
-                for i in range(1000):
+                for i in range(50):
                     [opt, lose] = sess.run([self.opt_op, self.lose],
-                                           feed_dict={self.state: self.samples.Xtest, self.y: self.samples.ytest})
+                                           feed_dict={self.state: self.samples.X, self.y: self.samples.y})
                     self.lose_his.append(lose)
 
                     if (i + 1) % self.info_loop == 0:
@@ -149,14 +149,14 @@ if __name__ == "__main__":
     sample.print()
 
     lose_history = []
-    for nodes in [100, 300, 1000, 3000, 10000]:
-        for lr in [0.01, 0.003, 0.001, 0.0001]:
+    for nodes in [100]:
+        for lr in [0.003]:
             model_name = "./saver/l5_%d_lr_%.6f_adam_model_2" % (nodes, lr)
             nn = NN(sample, model=model_name, node_num=nodes)
 
             lh = nn.run_training(lr=lr)
             lose_history.append(lh)
-            plt.plot(range(len(lh) - 100), lh[100:], label="lr=%.4f node = %d" % (lr, nodes))
+            plt.plot(range(len(lh)), lh, label="lr=%.4f node = %d" % (lr, nodes))
             nn.verify()
 
     leg = plt.legend(loc='best', ncol=2, mode="expand", shadow=True, fancybox=True)
